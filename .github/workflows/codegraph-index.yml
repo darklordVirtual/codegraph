@@ -80,5 +80,5 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           D1_DATABASE_ID: ${{ secrets.D1_DATABASE_ID }}
           GITHUB_SHA: ${{ inputs.commit_sha || github.sha }}
-          DB_PATH: ${{ github.workspace }}/.codegraph/index.db
+          DB_PATH: ${{ github.workspace }}/.codegraph/codegraph.db
         run: node /tmp/cg-upload/upload-to-d1.mjs
