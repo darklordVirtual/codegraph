@@ -47,17 +47,8 @@ async function d1Query(sql, params = []) {
 }
 
 async function d1Batch(statements) {
-  // Each element: { sql, params }
-  const res = await fetch(`${BASE}/batch`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${TOKEN}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      batch: statements.map(s => ({ sql: s.sql, params: s.params ?? [] })),
-    }),
-  });
-  const data = await res.json();
-  if (!data.success) throw new Error(`D1 batch error: ${JSON.stringify(data.errors)}`);
-  return data.result;
+  // D1 REST API has no /batch endpoint — execute each statement via /query in parallel
+  return Promise.all(statements.map(s => d1Query(s.sql, s.params ?? [])));
 }
 
 // Execute array of statements with multi-row INSERTs, BATCH_SIZE rows each,
