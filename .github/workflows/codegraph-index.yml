@@ -66,9 +66,9 @@ jobs:
       - name: Download upload script
         run: |
           mkdir -p /tmp/cg-upload
-          curl -sSfL https://raw.githubusercontent.com/darklordVirtual/codegraph/main/scripts/upload-to-d1.mjs \
+          curl -sSfL https://raw.githubusercontent.com/darklordVirtual/codegraph/main/cloudflare/scripts/upload-to-d1.mjs \
             -o /tmp/cg-upload/upload-to-d1.mjs
-          curl -sSfL https://raw.githubusercontent.com/darklordVirtual/codegraph/main/scripts/package.json \
+          curl -sSfL https://raw.githubusercontent.com/darklordVirtual/codegraph/main/cloudflare/scripts/package.json \
             -o /tmp/cg-upload/package.json
           cd /tmp/cg-upload && npm install --production
 
