@@ -26,8 +26,8 @@ const ACCOUNT_ID = env('CLOUDFLARE_ACCOUNT_ID');
 const DB_ID      = env('D1_DATABASE_ID');
 const DB_PATH    = process.env.DB_PATH    || '.codegraph/index.db';
 const COMMIT_SHA = process.env.GITHUB_SHA || '';
-const BATCH_SIZE = Number(process.env.ROWS_PER_BATCH ?? 50);
-const CONCURRENCY= Number(process.env.CONCURRENCY    ?? 5);
+const BATCH_SIZE = Number(process.env.ROWS_PER_BATCH ?? 4);  // D1 REST API limit: ~100 bound params per statement; nodes has 21 cols → max 4 rows
+const CONCURRENCY= Number(process.env.CONCURRENCY    ?? 10);
 
 const BASE = `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/d1/database/${DB_ID}`;
 
