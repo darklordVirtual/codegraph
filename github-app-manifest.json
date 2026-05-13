@@ -1,0 +1,22 @@
+{
+  "name": "CodeGraph Index",
+  "description": "Automatically indexes repositories into Cloudflare D1 for code-intelligence MCP queries.",
+  "url": "https://github.com/darklordVirtual/codegraph",
+  "hook_attributes": {
+    "url": "REPLACE_WITH_YOUR_WORKER_URL/webhook/github",
+    "active": true
+  },
+  "redirect_url": "REPLACE_WITH_YOUR_WORKER_URL/github-app/callback",
+  "default_permissions": {
+    "contents":         "write",
+    "workflows":        "write",
+    "actions":          "write",
+    "metadata":         "read"
+  },
+  "default_events": [
+    "push",
+    "installation",
+    "installation_repositories"
+  ],
+  "public": false
+}

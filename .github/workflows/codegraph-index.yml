@@ -1,0 +1,85 @@
+# codegraph-index.yml
+#
+# Indexes this repository and uploads the result to Cloudflare D1.
+#
+# HOW TO USE IN ANOTHER REPO:
+#   Copy this file to .github/workflows/codegraph-index.yml in your repo,
+#   then set the four secrets below in repo Settings → Secrets.
+#
+# Required secrets:
+#   CLOUDFLARE_API_TOKEN   – CF API token (D1 write + Workers read)
+#   CLOUDFLARE_ACCOUNT_ID  – CF account ID
+#   D1_DATABASE_ID         – D1 database ID  (wrangler d1 create codegraph)
+#
+# The MCP endpoint will be:
+#   https://<your-worker>.workers.dev/<owner>/<repo>/mcp
+
+name: CodeGraph index
+
+on:
+  push:
+    branches: [main, master]
+    paths-ignore:
+      - '**.md'
+      - '.github/workflows/**'
+  workflow_dispatch:
+    inputs:
+      commit_sha:
+        description: 'Commit SHA to record (leave blank for HEAD)'
+        required: false
+        default: ''
+
+concurrency:
+  group: codegraph-index-${{ github.repository }}
+  cancel-in-progress: true
+
+jobs:
+  index:
+    name: Index & upload
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # full history helps CodeGraph resolve cross-file references
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # ── Install CodeGraph indexer ─────────────────────────────
+      - name: Install CodeGraph
+        run: npm install -g @colbymchenry/codegraph@latest
+
+      # ── Run indexer ───────────────────────────────────────────
+      - name: Index repository
+        run: codegraph index .
+        # Produces .codegraph/index.db
+
+      - name: Show index stats
+        run: codegraph status .
+
+      # ── Install upload script deps ────────────────────────────
+      - name: Download upload script
+        run: |
+          mkdir -p /tmp/cg-upload
+          curl -sSfL https://raw.githubusercontent.com/darklordVirtual/codegraph/main/scripts/upload-to-d1.mjs \
+            -o /tmp/cg-upload/upload-to-d1.mjs
+          curl -sSfL https://raw.githubusercontent.com/darklordVirtual/codegraph/main/scripts/package.json \
+            -o /tmp/cg-upload/package.json
+          cd /tmp/cg-upload && npm install --production
+
+      # ── Upload to Cloudflare D1 ───────────────────────────────
+      - name: Upload to D1
+        env:
+          REPO: ${{ github.repository }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          D1_DATABASE_ID: ${{ secrets.D1_DATABASE_ID }}
+          GITHUB_SHA: ${{ inputs.commit_sha || github.sha }}
+          DB_PATH: ${{ github.workspace }}/.codegraph/index.db
+        run: node /tmp/cg-upload/upload-to-d1.mjs

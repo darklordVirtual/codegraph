@@ -1,0 +1,18 @@
+name = "codegraph"
+main = "src/worker/index.ts"
+compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "codegraph"
+database_id = "1555e587-2b51-4f85-b3e4-691f3dcaecd4"
+
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "codegraph-files"
+
+[vars]
+MCP_AUTH_TOKEN = ""
+GITHUB_WEBHOOK_SECRET = ""
+GITHUB_TOKEN = ""
