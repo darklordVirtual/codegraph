@@ -49,3 +49,5 @@ test_frameworks
 test-languages/
 
 nul
+
+.env.local
