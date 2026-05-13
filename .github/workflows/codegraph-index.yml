@@ -64,12 +64,14 @@ jobs:
 
       # ── Install upload script deps ────────────────────────────
       - name: Download upload script
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           mkdir -p /tmp/cg-upload
-          curl -sSfL https://raw.githubusercontent.com/darklordVirtual/codegraph/main/cloudflare/scripts/upload-to-d1.mjs \
-            -o /tmp/cg-upload/upload-to-d1.mjs
-          curl -sSfL https://raw.githubusercontent.com/darklordVirtual/codegraph/main/cloudflare/scripts/package.json \
-            -o /tmp/cg-upload/package.json
+          gh api repos/darklordVirtual/codegraph/contents/cloudflare/scripts/upload-to-d1.mjs \
+            --jq '.content' | base64 -d > /tmp/cg-upload/upload-to-d1.mjs
+          gh api repos/darklordVirtual/codegraph/contents/cloudflare/scripts/package.json \
+            --jq '.content' | base64 -d > /tmp/cg-upload/package.json
           cd /tmp/cg-upload && npm install --production
 
       # ── Upload to Cloudflare D1 ───────────────────────────────
